@@ -33,13 +33,13 @@ The app will warn you if you are trying to use a parameter file that does not ma
 
 After clicking on "upload" you can edit your experimental design in the table that appears below. It is modelled after the MaxQuant and FragPipe experimental design tables.
 
-| Column name | Meaning                                                                                                                                                         |
-|-------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| key         | Unique name for the column that is only used by QProMS (not editable)                                                                                           | 
-| label       | Unique name for the column                                                                                                                                      |
-| condition   | The experimental condition (e.g. control/tumor, time point etc). Can be letters and/or numbers. All replicates of one condition must have the same condition name |
-| replicate   | The replica number. Replicate numbers need not be unique. This is useful if multiple injections or MS settings are used for each replica             |
-| keep        | Whether to keep or discard this column for the QProMS analysis                                                                                                  |
+| Column name | Meaning                                                                                                                                                                   |
+|-------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| key         | Unique name for the column that is only used by QProMS (not editable)                                                                                                     | 
+| label       | Unique name for the column                                                                                                                                                |
+| condition   | The experimental condition (e.g. control/tumor, time point etc). Can be letters and/or numbers. All replicates of one condition must have the same condition name         |
+| replicate   | The replica number. Replicate numbers have to be unique within each experimental condition. |
+| keep        | Whether to keep or discard this column for the QProMS analysis                                                                                                            |
 
 Once you are done editing the experimental design, click "Apply". The green "Start" button should appear. Clicking it will unlock the rest of the app.
 
@@ -60,3 +60,50 @@ Other options available here are dependent on the search engine used in the uplo
 - For FragPipe, contaminants are automatically removed based on the [CrapOme list](https://reprint-apms.org/?q=about) utilized by FragPipe and Philosopher during database construction.
 
 At the bottom of the page, the table post data filtering is available for export and interactive searching.
+
+#### Missing data page
+
+In the missing data page, the user can analyse the distribution of missing values and perform imputation. The plots highlight the intensity distributions and the effects of imputation. The contribution from imputation can be highlighted in the "Effect of imputation: after" plot. The distribution can be broken down by sample by clicking on the bar at the bottom of the page.
+
+In the blue ribbon for "parameters" the algorithm for imputation may be selected. There are 2 modes: mixed imputation, introduced in the [QProMS publication](XXX), and the Perseus algorithm, adapted from [here](http://www.coxdocs.org/doku.php?id=perseus:user:activities:matrixprocessing:imputation:replacemissingfromgaussian). In the Perseus algorithm, missing values are replaced by sampling from a down-shifted gaussian distribution.
+
+The mean of the imputed distribution can be positioned relative to the mean experimental intensity in terms of standard deviations with the "down shift" parameter. The width of the imputed distribution can be adjusted by the "scale" parameter.
+
+Mixed imputation recognises two types of missing data: missing (MAR) at random and missing not at random (MNAR). Missing at random values (i.e. those missing from a single replica in a condition) are imputed with the mean of the value of that protein in the other replicas. Missing not at random (completely missing from a particular experimental condition) are imputed with the Perseus-style algorithm.
+
+At the bottom of the page, the table post imputation is available for export and interactive searching.
+
+#### Correlation page
+
+Correlation matrix for the data. Scatter plots dynamically update by clicking on different squares in the correlation matrix.
+
+Users can select the type of correlation analysis by clicking on the parameters tab to set Pearson (default), Spearmann or Kendall correlation.
+
+An all-to-all multiscatter plot may be generated by clicking on the white ribbon at the bottom of the page.
+
+#### PCA page
+
+The page displays a principal component analysis in 2d and 3d. The top of the page highlights the variance explained by each principal component. These plots are useful as quality control to ensure that replicas cluster with each other and separate across different experimental conditions (i.e. that most of the variance is contributed by changing of experimental condition).
+
+#### Statistics - univariate page
+
+This page guides the user through differential analysis and generation of the volcano plot. In "Parameters", the user selects the type of statistical test for generation of the p-value.
+
+- Welch's T-test (default): two-sample t-test that is more reliable when populations have unequal variances and different sample sizes.
+- Student's T-test: two-sample t-test that assumes populations have equal variance.
+- limma (linear models for microarray and RNA-Seq): Bayesian univariate test relying on row-wise linear models to estimate likelihood of differental expression. More information [here](https://academic.oup.com/nar/article/43/7/e47/2414268).
+- Wilcoxon's test: Nonparametric (rank-based) t-test. Does not rely on assumption of normal distribution or variance.
+
+The "paired" option is off by default but can be toggled if a paired test is to be performed. This is desirable if the comparison is between two samples that are correlated.
+
+"Fold change" is the minimum fold change (in log2 units) to consider as significant.
+
+Alpha is the level of significance after correction for multiple testing (Truncation) is applied. Several corrections are available, with the default being Benjamini/Hochberg FDR correction.
+
+"Primary comparison" is the choice of which comparison to test (written as "enriched_vs_control") and to display in the main volcano plot. Multiple volcano plots may be displayed by selecting other conditions in "additional comparison".
+
+Once the parameters are selected, click "start" to display the volcano plots.
+
+The volcano plot is dynamic and may visually be updated with options found in the wheel at the top right. Selecting proteins from the table below will bring up their profile plots across conditions.
+
+At the bottom of the page, the table can be used to select proteins to display and dynamically update the plot or for export.
